@@ -2,11 +2,13 @@
 
 #[macro_use] extern crate rocket;
 
-#[get("/")]
-fn index() -> &'static str {
+#[get("/forums")]
+fn forums() -> &'static str {
 	"Hello, world!"
 }
 
 fn main() {
-	rocket::ignite().mount("/", routes![index]).launch();
+	rocket::ignite()
+      .mount("/", StaticFiles::from("/"))
+      .mount("/forums", routes![forums]).launch();
 }
