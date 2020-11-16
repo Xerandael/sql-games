@@ -32,6 +32,7 @@ partial index could be used to allow moving from and to the same board?
 
 forking logic
 get out a pen and paper and work this out
+grouping and window functions????
 
 
 CQRS.  players put in events and get back state.
