@@ -67,6 +67,7 @@ create view lines as (
   cross join natural_numbers 
 );
 
+-- TODO: replace this with an initial board?  Merge that with the board definition?  Fancy crosstab notation?
 create view pieces as (
   with pieces(type) as (
     values
@@ -81,12 +82,17 @@ create view pieces as (
   from pieces
 );
 
--- TODO: active and inactive timelines.  prolly need be in view
-create table piece_squares( -- TODO: this should be a view built from events over time.  self-join of recursive view?
+create table events ( -- TODO: This is the raw player input state. Validate state by self-join of recursv view?
   game int not null,
   turn int not null check (turn > 0 && ((turn > 1) || (prev is null))),
   prev int references squares(turn) check ((prev is null) || ((turn - prev) = 1)),
   timeline int  -- timeline_above, timeline_below -- can't have both -- only need one -- maybe can take advantage of the natural ordering of the integers.  Move toward zero?  FK(abs(thing) - 1)
+);
+
+-- TODO: active and inactive timelines.  prolly need be in view
+-- TODO: filter invalid movements and all subsequent events per game
+create view state as (
+  with recursive state -- TODO recursive, grouped self-join???
 );
 
 -- TODO: pawns might actually be one of the more curious constructions
