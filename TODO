@@ -1,18 +1,16 @@
-events has this structure:
-this_v
-prev_v
-this_w
-prev_w
-this_x
-prev_x
-this_y
-prev_y
-this_z
-prev_z
-inwd_z -- special constraint for active branching factor. FK to this_z
-t_plyr
-p_plyr
-piece_
+a timeline is created when more than one move ends on the same board.  the split happens with the move where:
+  ((to_turn < from_turn) && (from_timeline = to_timeline))
+  ||
+  ((to_timeline != from_timeline)) -- TODO: incomplete logic?
+OR equivalently, the non-split is the move where the board moved from is the board moved to.  well that's incomplete also...
+
+check not all from=to
+check ((from_turn % 2) = (to_turn % 2))
+current_player = ((from_turn % 2) * 2) - 1
+check (prev_timeline is not null || (from_timeline = 0))
+check (both_fromto_timeline )
+check player moving own piece?
+check in bounds? FK to board definition
 
 indexes
   ptl, ptn, px, py (unique?) FK

@@ -66,7 +66,9 @@ create view lines as (
 );
 
 -- TODO: replace this with an initial board?  Merge that with the board definition?  Fancy crosstab notation?
-create view pieces as (
+                                                                                     (1, 'r', 'k', 'b', 'Q', 'K', 'b', 'k', 'r')
+                                                                                     (2, 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p')
+create materialized view pieces as (
   with types(type) as (
     values
       ('p'),
@@ -98,9 +100,10 @@ create table moves (
   game          int not null default nextval(game_seq),
   to_timeline   int not null,
   from_timeline int not null,
+  inward_timeline -- TODO: check and FK
   to_turn       int not null,
   from_turn     int not null,
-  previous_turn int not null,
+  previous_turn int not null, -- TODO: need?
   to_x          int not null,
   from_x        int not null,
   to_y          int not null,
@@ -108,7 +111,10 @@ create table moves (
   piece_type    varchar(1) not null,
   piece_color   int not null check (abs(piece_color) = 1)
 );
-create unique index can_only_move_once_per_board_turn on moves(from_timeline, from_turn);
+create unique index can_only_move_once_per_board_turn on moves(game, from_timeline, from_turn);
+create index starting_location on moves(game, from_timeline, from_turn, from_x, from_y);
+create index ending_location on moves(game, to_timeline, to_turn, to_x, to_y); -- a timeline is created when more than one of these exists
+create index potential_timeline_creations on moves(game, from_timeline, to_turn) where (from_turn > to_turn); -- TODO: doesn't account for forward creation
 
 
 -- TODO: initial board state
