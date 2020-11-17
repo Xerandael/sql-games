@@ -1,5 +1,3 @@
--- 5-dimensional chess in SQL
-
 create view natural_numbers as (
   with recursive natural_numbers as (
     select 1 as n
@@ -69,19 +67,24 @@ create view lines as (
 
 -- TODO: replace this with an initial board?  Merge that with the board definition?  Fancy crosstab notation?
 create view pieces as (
-  with pieces(type) as (
+  with types(type) as (
     values
-      ('pawn'),
-      ('rook'),
-      ('knight'),
-      ('bishop'),
-      ('queen'),
-      ('king')
+      ('p'),
+      ('r'),
+      ('k'),
+      ('b'),
+      ('Q'),
+      ('K')
+  ),
+  colors(color) as (
+    values (1) (-1)
   )
   select *
-  from pieces
+  from types
+  cross join colors
 );
 
+-- TODO: outdated.  See next paragraph for new definition in progress
 create table events ( -- TODO: This is the raw player input state. Validate state by self-join of recursv view?
   game int not null,
   turn int not null check (turn > 0 && ((turn > 1) || (prev is null))),
@@ -89,6 +92,26 @@ create table events ( -- TODO: This is the raw player input state. Validate stat
   timeline int  -- timeline_above, timeline_below -- can't have both -- only need one -- maybe can take advantage of the natural ordering of the integers.  Move toward zero?  FK(abs(thing) - 1)
 );
 
+create sequence game_seq;
+
+create table moves (
+  game          int not null default nextval(game_seq),
+  to_timeline   int not null,
+  from_timeline int not null,
+  to_turn       int not null,
+  from_turn     int not null,
+  previous_turn int not null,
+  to_x          int not null,
+  from_x        int not null,
+  to_y          int not null,
+  from_y        int not null,
+  piece_type    varchar(1) not null,
+  piece_color   int not null check (abs(piece_color) = 1)
+);
+create unique index can_only_move_once_per_board_turn on moves(from_timeline, from_turn);
+
+
+-- TODO: initial board state
 -- TODO: active and inactive timelines.  prolly need be in view
 -- TODO: filter invalid movements and all subsequent events per game
 create view state as (

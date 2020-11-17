@@ -10,3 +10,5 @@ I like SQL a lot.  I'm seeking to challenge my skills by building games in SQL. 
 ### [Lazy infinite sequences in recursive views](https://github.com/Xerandael/sql-games/blob/4e9a34a918a6a629c2b8dae552215dc1653ec109/chess.sql#L3)
 
 ### [Concise, lazy, abstract definition of all possible lines in 4D, indexed on number of dimensions moved through](https://github.com/Xerandael/sql-games/blob/4e9a34a918a6a629c2b8dae552215dc1653ec109/chess.sql#L30-L68)
+
+TODO: denormalized mult-column foreign keys for advanced constraints.  Multiple examples.
