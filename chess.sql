@@ -65,56 +65,48 @@ create view lines as (
   cross join natural_numbers 
 );
 
--- TODO: replace this with an initial board?  Merge that with the board definition?  Fancy crosstab notation?
-                                                                                     (1, 'r', 'k', 'b', 'Q', 'K', 'b', 'k', 'r')
-                                                                                     (2, 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p')
-create materialized view pieces as (
-  with types(type) as (
+create materialized view initial_board as (
+  with pieces(type,color) as (
     values
-      ('p'),
-      ('r'),
-      ('k'),
-      ('b'),
-      ('Q'),
-      ('K')
-  ),
-  colors(color) as (
-    values (1) (-1)
+      ('r',-1), ('k',-1), ('b',-1), ('Q',-1), ('K',-1), ('b',-1), ('k',-1), ('r',-1),
+      ('p',-1), ('p',-1), ('p',-1), ('p',-1), ('p',-1), ('p',-1), ('p',-1), ('p',-1),
+      (' ', 0), (' ', 0), (' ', 0), (' ', 0), (' ', 0), (' ', 0), (' ', 0), (' ', 0),
+      (' ', 0), (' ', 0), (' ', 0), (' ', 0), (' ', 0), (' ', 0), (' ', 0), (' ', 0),
+      (' ', 0), (' ', 0), (' ', 0), (' ', 0), (' ', 0), (' ', 0), (' ', 0), (' ', 0),
+      (' ', 0), (' ', 0), (' ', 0), (' ', 0), (' ', 0), (' ', 0), (' ', 0), (' ', 0),
+      ('p', 1), ('p', 1), ('p', 1), ('p', 1), ('p', 1), ('p', 1), ('p', 1), ('p', 1),
+      ('r', 1), ('k', 1), ('b', 1), ('K', 1), ('Q', 1), ('b', 1), ('k', 1), ('r', 1)
   )
   select *
-  from types
-  cross join colors
-);
-
--- TODO: outdated.  See next paragraph for new definition in progress
-create table events ( -- TODO: This is the raw player input state. Validate state by self-join of recursv view?
-  game int not null,
-  turn int not null check (turn > 0 && ((turn > 1) || (prev is null))),
-  prev int references squares(turn) check ((prev is null) || ((turn - prev) = 1)),
-  timeline int  -- timeline_above, timeline_below -- can't have both -- only need one -- maybe can take advantage of the natural ordering of the integers.  Move toward zero?  FK(abs(thing) - 1)
+  from pieces
+  join board on row(pieces) = row(board)
 );
 
 create sequence game_seq;
 
+-- raw player inputs plus some validations.  This doesn't validate piece movements.  There are views for that sort of thing.
 create table moves (
+  -- TODO: `id` necessary?
   game          int not null default nextval(game_seq),
   to_timeline   int not null,
   from_timeline int not null,
-  inward_timeline -- TODO: check and FK
-  to_turn       int not null,
-  from_turn     int not null,
-  previous_turn int not null, -- TODO: need?
+  inward_timeline -- TODO: Postgres generated column -- take advantage of the natural ordering of the integers.  Move toward zero.  FK(abs(thing) - 1)
+  to_turn       int not null check ((to_turn > 0) && ((to_turn > 1) || (from_turn is null))), -- TODO: these constraints aren't quite right
+  from_turn     int references moves(to_turn),
   to_x          int not null,
   from_x        int not null,
   to_y          int not null,
   from_y        int not null,
-  piece_type    varchar(1) not null,
-  piece_color   int not null check (abs(piece_color) = 1)
+  piece_type    varchar(1) not null, -- TODO: is this something that can be put into the view?
+  piece_color   int not null check (abs(piece_color) = 1) -- TODO: Postgres generated column?
 );
 create unique index can_only_move_once_per_board_turn on moves(game, from_timeline, from_turn);
 create index starting_location on moves(game, from_timeline, from_turn, from_x, from_y);
-create index ending_location on moves(game, to_timeline, to_turn, to_x, to_y); -- a timeline is created when more than one of these exists
-create index potential_timeline_creations on moves(game, from_timeline, to_turn) where (from_turn > to_turn); -- TODO: doesn't account for forward creation
+create index ending_location on moves(game, to_timeline, to_turn, to_x, to_y);
+-- TODO: This index was an attempt to specify the semantics of timeline forking.  This doesn't completely capture all cases, namely it does not account for
+-- forward creation, where a past timeline jumps forward to a future board on another timeline.  Investigate whether this index is worth keeping and/or what
+-- new indexes can support the full semantics of checking whether a board has been moved to twice.
+create index potential_timeline_creations on moves(game, from_timeline, to_turn) where (from_turn > to_turn);
 
 
 -- TODO: initial board state
