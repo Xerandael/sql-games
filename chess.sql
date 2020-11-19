@@ -20,7 +20,7 @@ create view board as (
     from natural_numbers
     limit 8
   )
-  select *
+  select *, row_number() over () as n
   from width
   cross join height
 );
@@ -30,37 +30,35 @@ create materialized view linear_movement_basis_vectors as (
     select 1 n
     union
     select (n + 1)
-    limit (2 ^ 4) -- 2 possible states per direction: active or inactive.  4 possible dimensions
+    from bitmasks
   ),
   combinations as (
-    select(
-      ((bit(n) & (2 ^ 4))) as w_dimension_active,
-      ((bit(n) & (2 ^ 3))) as z_dimension_active,
-      ((bit(n) & (2 ^ 2))) as y_dimension_active,
-      ((bit(n) & (2 ^ 1))) as x_dimension_active
-    )
+    select
+      ((n::bit(8) & (2 ^ 3)::int::bit(8))::int != 0)::int as w_dimension_active,
+      ((n::bit(8) & (2 ^ 2)::int::bit(8))::int != 0)::int as z_dimension_active,
+      ((n::bit(8) & (2 ^ 1)::int::bit(8))::int != 0)::int as y_dimension_active,
+      ((n::bit(8) & (2 ^ 0)::int::bit(8))::int != 0)::int as x_dimension_active
     from bitmasks
+    limit (2 ^ 4) -- 2 possible states per direction: active or inactive.  4 possible dimensions
   )
-  select (
-    (w_direction_active + z_direction_active + x_direction_active + y_direction_active) as num_directions_active,
-    w_direction_active as w,
-    x_direction_active as x,
-    y_direction_active as y,
-    z_direction_active as z
-  )
+  select
+    (w_dimension_active + z_dimension_active + x_dimension_active + y_dimension_active) as num_dimensions_active,
+    w_dimension_active as w,
+    x_dimension_active as x,
+    y_dimension_active as y,
+    z_dimension_active as z
   from combinations
 );
-create index linear_movement on linear_movement_basis_vectors(num_directions_active);
+create index linear_movement on linear_movement_basis_vectors(num_dimensions_active);
 
 create view lines as (
-  select (
+  select
     (w*n) as w,
     (x*n) as x,
     (y*n) as y,
     (z*n) as z,
     natural_numbers.n,
-    num_directions_active
-  )
+    num_dimensions_active
   from linear_movement_basis_vectors
   cross join natural_numbers 
 );
@@ -76,13 +74,19 @@ create materialized view initial_board as (
       (' ', 0), (' ', 0), (' ', 0), (' ', 0), (' ', 0), (' ', 0), (' ', 0), (' ', 0),
       ('p', 1), ('p', 1), ('p', 1), ('p', 1), ('p', 1), ('p', 1), ('p', 1), ('p', 1),
       ('r', 1), ('k', 1), ('b', 1), ('K', 1), ('Q', 1), ('b', 1), ('k', 1), ('r', 1)
+  ),
+  squares as (
+    select *, row_number() over () as square_num
+    from pieces
   )
   select *
-  from pieces
-  join board on row(pieces) = row(board)
+  from squares
+  join board on squares.square_num = board.n
 );
 
 create sequence game_seq;
+
+--- TODO: everything works up to here
 
 -- raw player inputs plus some validations.  This doesn't validate piece movements.  There are views for that sort of thing.
 create table moves (
