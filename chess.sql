@@ -126,3 +126,5 @@ create view state as (
 
 -- define betweenness as opposed to defining iteration of moves
 -- join against the set of all pieces on whether they're linearly-between the start and end
+
+-- DROP MIC IF EXISTS; (final slide)  GitHub as slides. @TODO
