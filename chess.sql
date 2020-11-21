@@ -96,13 +96,17 @@ create table moves (
   from_timeline int not null,
   inward_timeline -- TODO: Postgres generated column -- take advantage of the natural ordering of the integers.  Move toward zero.  FK(abs(thing) - 1)
   to_turn       int not null check ((to_turn > 0) && ((to_turn > 1) || (from_turn is null))), -- TODO: these constraints aren't quite right
-  from_turn     int references moves(to_turn),
+  from_turn     int references moves(to_turn), -- TODO: should this be `not null`?
   to_x          int not null,
   from_x        int not null,
   to_y          int not null,
   from_y        int not null,
   piece_type    varchar(1) not null, -- TODO: is this something that can be put into the view?
   piece_color   int not null check (abs(piece_color) = 1) -- TODO: Postgres generated column?
+  -- validate that the board you want to move to exists.  Wait.  What about boards moved _through_?  the knight can jump over missing boards.
+  -- foreign key against a view
+  -- validate that not more than one starting move exists per game.
+  foreign key (game,from_timeline,from_turn) references moves(game,to_timeline,to_turn);
 );
 create unique index can_only_move_once_per_board_turn on moves(game, from_timeline, from_turn);
 create index starting_location on moves(game, from_timeline, from_turn, from_x, from_y);
@@ -113,13 +117,12 @@ create index ending_location on moves(game, to_timeline, to_turn, to_x, to_y);
 create index potential_timeline_creations on moves(game, from_timeline, to_turn) where (from_turn > to_turn);
 
 
--- TODO: initial board state
--- TODO: active and inactive timelines.  prolly need be in view
 -- TODO: filter invalid movements and all subsequent events per game
 create view state as (
   with recursive state -- TODO recursive, grouped self-join???
 );
 
--- TODO: pawns might actually be one of the more curious constructions
 -- black and white should be + and - 1 for the purposes of pawn movements as well as timelines.
--- castling + en-passant
+
+-- define betweenness as opposed to defining iteration of moves
+-- join against the set of all pieces on whether they're linearly-between the start and end
