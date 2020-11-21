@@ -89,6 +89,15 @@ create sequence game_seq;
 --- TODO: everything works up to here
 
 -- raw player inputs plus some validations.  This doesn't validate piece movements.  There are views for that sort of thing.
+-- TODO: some of the constraints I see as enforceable here:
+--  - you have to actually move
+--  ? players must move their own pieces
+--  ? any linear movement stops if it hits an edge of a board
+--  ? any given board cannot be moved from twice -- unless castling
+--  ? timelines stack according to their creator
+--  - moves alternate between pieces of opposing color
+--  ? moving between boards uses up the moves of both (a board moved to cannot be moved from unless both actions happened in the same move)
+--  ? a timeline cannot be moved from if it is inactive (this might actually be enforeceable in `moves`)
 create table moves (
   -- TODO: `id` necessary?
   game          int not null default nextval(game_seq),
@@ -101,7 +110,7 @@ create table moves (
   from_x        int not null,
   to_y          int not null,
   from_y        int not null,
-  piece_type    varchar(1) not null, -- TODO: is this something that can be put into the view?
+  piece_type    varchar(1) not null, -- TODO: is this something that can be put into the view? -- alternatively, the FK possibilities might be nice here
   piece_color   int not null check (abs(piece_color) = 1) -- TODO: Postgres generated column?
   -- validate that the board you want to move to exists.  Wait.  What about boards moved _through_?  the knight can jump over missing boards.
   -- foreign key against a view
@@ -126,5 +135,12 @@ create view state as (
 
 -- define betweenness as opposed to defining iteration of moves
 -- join against the set of all pieces on whether they're linearly-between the start and end
+
+-- TODO: `timelines` view
+-- TODO: `available_moves` view used for presentation as well as validation
+-- TODO: piece movement definitions
+big piece switch statement with movement mechanic defintions?  joins of some sort?  left join after left join?
+dynamic and/or normalized movement defintions?  maybe this even simplifies some things.
+
 
 -- DROP MIC IF EXISTS; (final slide)  GitHub as slides. @TODO
