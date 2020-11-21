@@ -8,7 +8,7 @@ def test(game_id=($game_id += 1),content)
   }.join
   $output << "insert into test_cases(name,status) values ("#{name}, (#{assertion}));"
 end
-statements = (File.readlines 'chess.sql') + tests.split('\n')
+statements = (File.readlines 'chess.sql')
 statements.reverse.each {|l|
   if(rel = l.match(/^create table \w+/))
     $output << "drop table if exists #{rel.to_s.split(' ').last};"
@@ -24,6 +24,15 @@ statements.each {|l| $output << l}
 ############################################################################################################################################################
 test <<-TEST
   you have to actually move
+  ---
+  TODO moves here
+  ---
+  TODO assertion here
+TEST
+
+
+test <<-TEST
+  players must move their own pieces
   ---
   TODO moves here
   ---

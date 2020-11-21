@@ -86,9 +86,23 @@ create materialized view initial_board as (
 
 create sequence game_seq;
 
---- TODO: everything works up to here
+--------------------------------------------------------------------------------------------------------------------------------
 
--- raw player inputs plus some validations.  This doesn't validate piece movements.  There are views for that sort of thing.
+create table moves (
+  id              primary key, -- mostly used as a way of tracking the order moves were made in actual time
+  game            int not null default nextval(game_seq),
+  to_timeline     int not null,
+  from_timeline   int not null, -- TODO: can be at most 1 more or less than any other existing timeline for this game
+  inward_timeline int not null generated always as ((abs(from_timeline) - 1) * ((-1 * (0 ^ from_timeline)::int) + 1)) stored references moves(from_timeline);
+  to_turn         int not null check ((to_turn > 0) && ((to_turn > 1) || (from_turn is null))), -- TODO: these constraints aren't quite right
+  from_turn       int references moves(to_turn), -- TODO: should this be `not null`?
+  to_x            int not null,
+  from_x          int not null,
+  to_y            int not null,
+  from_y          int not null,
+  piece_type      varchar(1) not null, -- TODO: is this something that can be put into the view? -- alternatively, the FK possibilities might be nice here
+  piece_color     int not null check (abs(piece_color) = 1) -- TODO: Postgres generated column?
+  foreign key (game,from_timeline,from_turn) references moves(game,to_timeline,to_turn);
 -- TODO: some of the constraints I see as enforceable here:
 --  - you have to actually move
 --  ? players must move their own pieces
@@ -98,24 +112,6 @@ create sequence game_seq;
 --  - moves alternate between pieces of opposing color
 --  ? moving between boards uses up the moves of both (a board moved to cannot be moved from unless both actions happened in the same move)
 --  ? a timeline cannot be moved from if it is inactive (this might actually be enforeceable in `moves`)
-create table moves (
-  -- TODO: `id` necessary?
-  game          int not null default nextval(game_seq),
-  to_timeline   int not null,
-  from_timeline int not null,
-  inward_timeline -- TODO: Postgres generated column -- take advantage of the natural ordering of the integers.  Move toward zero.  FK(abs(thing) - 1)
-  to_turn       int not null check ((to_turn > 0) && ((to_turn > 1) || (from_turn is null))), -- TODO: these constraints aren't quite right
-  from_turn     int references moves(to_turn), -- TODO: should this be `not null`?
-  to_x          int not null,
-  from_x        int not null,
-  to_y          int not null,
-  from_y        int not null,
-  piece_type    varchar(1) not null, -- TODO: is this something that can be put into the view? -- alternatively, the FK possibilities might be nice here
-  piece_color   int not null check (abs(piece_color) = 1) -- TODO: Postgres generated column?
-  -- validate that the board you want to move to exists.  Wait.  What about boards moved _through_?  the knight can jump over missing boards.
-  -- foreign key against a view
-  -- validate that not more than one starting move exists per game.
-  foreign key (game,from_timeline,from_turn) references moves(game,to_timeline,to_turn);
 );
 create unique index can_only_move_once_per_board_turn on moves(game, from_timeline, from_turn);
 create index starting_location on moves(game, from_timeline, from_turn, from_x, from_y);
@@ -125,6 +121,9 @@ create index ending_location on moves(game, to_timeline, to_turn, to_x, to_y);
 -- new indexes can support the full semantics of checking whether a board has been moved to twice.
 create index potential_timeline_creations on moves(game, from_timeline, to_turn) where (from_turn > to_turn);
 
+--------------------------------------------------------------------------------------------------------------------------------
+
+--- TODO: everything works up to here
 
 -- TODO: filter invalid movements and all subsequent events per game
 create view state as (
