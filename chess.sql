@@ -89,31 +89,60 @@ create sequence game_seq;
 --------------------------------------------------------------------------------------------------------------------------------
 
 create table moves (
-  id              primary key, -- mostly used as a way of tracking the order moves were made in actual time
+  -------------------------------------------------------------------------------
+  -- base columns
+  -------------------------------------------------------------------------------
   game            int not null default nextval(game_seq),
   to_timeline     int not null,
-  from_timeline   int not null, -- TODO: can be at most 1 more or less than any other existing timeline for this game
-  inward_timeline int not null generated always as ((abs(from_timeline) - 1) * ((-1 * (0 ^ from_timeline)::int) + 1)) stored references moves(from_timeline);
+  from_timeline   int not null, -- TODO: can be at most 1 more or less than any other existing timeline for this game.  can't enforce that in this table though I think
+  real_turn       int not null, -- mostly used as a way of tracking the order moves were made in actual time
   to_turn         int not null check ((to_turn > 0) && ((to_turn > 1) || (from_turn is null))), -- TODO: these constraints aren't quite right
-  from_turn       int references moves(to_turn), -- TODO: should this be `not null`?
+  from_turn       int not null,
   to_x            int not null,
   from_x          int not null,
   to_y            int not null,
   from_y          int not null,
-  piece_type      varchar(1) not null, -- TODO: is this something that can be put into the view? -- alternatively, the FK possibilities might be nice here
-  piece_color     int not null check (abs(piece_color) = 1) -- TODO: Postgres generated column?
-  foreign key (game,from_timeline,from_turn) references moves(game,to_timeline,to_turn);
--- TODO: some of the constraints I see as enforceable here:
---  - you have to actually move
---  ? players must move their own pieces
---  ? any linear movement stops if it hits an edge of a board
---  ? any given board cannot be moved from twice -- unless castling
---  ? timelines stack according to their creator
---  - moves alternate between pieces of opposing color
---  ? moving between boards uses up the moves of both (a board moved to cannot be moved from unless both actions happened in the same move)
---  ? a timeline cannot be moved from if it is inactive (this might actually be enforeceable in `moves`)
+  piece_type      varchar(1) not null references moves(game,from_timeline), -- TODO: is this something that can be put into the view? -- alternatively, the FK possibilities might be nice here
+
+  -------------------------------------------------------------------------------
+  -- generated columns
+  -------------------------------------------------------------------------------
+  -- validate sequentiality of real turns starting from 1 per game
+  prev_turn       int generated always as nullif((real_turn - 1), 0) stored references moves(game, real_turn),
+  -- validate that we're not creating timelines at n distance from the origin till we have one at (n-1) distance from the origin
+  inward_timeline int not null generated always as ((abs(from_timeline) - 1) * ((-1 * (0 ^ from_timeline)::int) + 1)) stored references moves(from_timeline),
+  -- tools for validating the chain of moves made by any given piece -- hacks using nulls and FKs
+  has_prev_turn   bool generated always as (nullif((real_turn - 1), 0) is not null) stored,
+  is_not_init     bool generated always as (t),
+
+  -------------------------------------------------------------------------------
+  -- constraints
+  -------------------------------------------------------------------------------
+  -- you have to actually move
+  check ((from_timeline != to_timeline) or (from_turn != to_turn) or (from_x != to_x) or (from_y != to_y))
+  --  ? players must move their own pieces
+  TODO
+  --  ? any linear movement stops if it hits an edge of a board
+  TODO
+  --  ? any given board cannot be moved from twice -- unless castling
+  TODO
+  --  ? timelines stack according to their creator
+  TODO
+  --  - moves alternate between pieces of opposing color
+  TODO
+  --  ? moving between boards uses up the moves of both (a board moved to cannot be moved from unless both actions happened in the same move)
+  TODO
+  --  ? a timeline cannot be moved from if it is inactive (this might actually be enforeceable in `moves`)
+  TODO
+  -- you can only move a piece from where it was -- works for the first move because of the helper derived column `is_first_move` which is null and invalidates the FK on first move
+  foreign key (game,from_timeline,from_turn,from_x,from_y,piece,has_prev_turn) references moves(game,to_timeline,to_turn,to_x,to_y,piece,is_not_init),
+
+  -------------------------------------------------------------------------------
+  -- indexes -- TODO: go over these once done with data and constraint defs
+  -------------------------------------------------------------------------------
 );
-create unique index can_only_move_once_per_board_turn on moves(game, from_timeline, from_turn);
+create unique index game_real_turn on moves(game, real_turn);
+create unique index can_only_move_once_per_board_turn on moves(game, from_timeline, from_turn); -- TODO: partial index where king hasn't moved 2 sqs?
 create index starting_location on moves(game, from_timeline, from_turn, from_x, from_y);
 create index ending_location on moves(game, to_timeline, to_turn, to_x, to_y);
 -- TODO: This index was an attempt to specify the semantics of timeline forking.  This doesn't completely capture all cases, namely it does not account for
@@ -122,8 +151,6 @@ create index ending_location on moves(game, to_timeline, to_turn, to_x, to_y);
 create index potential_timeline_creations on moves(game, from_timeline, to_turn) where (from_turn > to_turn);
 
 --------------------------------------------------------------------------------------------------------------------------------
-
---- TODO: everything works up to here
 
 -- TODO: filter invalid movements and all subsequent events per game
 create view state as (
@@ -140,6 +167,3 @@ create view state as (
 -- TODO: piece movement definitions
 big piece switch statement with movement mechanic defintions?  joins of some sort?  left join after left join?
 dynamic and/or normalized movement defintions?  maybe this even simplifies some things.
-
-
--- DROP MIC IF EXISTS; (final slide)  GitHub as slides. @TODO

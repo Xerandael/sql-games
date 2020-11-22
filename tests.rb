@@ -4,7 +4,7 @@ $game_id = 0
 def test(game_id=($game_id += 1),content)
   name,moves,assertion = content.split '---'
   moves.split('\n').each{|a|
-    $output << "insert into moves(game,from_timeline,from_turn,from_x,from_y) values (#{game_id}, #{a});"
+    $output << "insert into moves(game,from_timeline,to_timeline,from_turn,to_turn,from_x,to_x,from_y,to_y) values (#{game_id}, #{a});"
   }.join
   $output << "insert into test_cases(name,status) values ("#{name}, (#{assertion}));"
 end
@@ -149,7 +149,7 @@ TEST
 
 
 test <<-TEST
-  moves alternate between pieces of opposing color
+  moves alternate between pieces of opposing color.  each player moves pieces on each board before the next player can move.
   ---
   TODO moves here
   ---
@@ -275,6 +275,15 @@ TEST
 
 
 test <<-TEST
+  when castling, the rook moves along with the king
+  ---
+  TODO moves here
+  ---
+  TODO assertion here
+TEST
+
+
+test <<-TEST
   pawn promotion
   ---
   TODO moves here
@@ -291,6 +300,41 @@ test <<-TEST
   TODO assertion here
 TEST
 
+
+test <<-TEST
+  checkmate
+  ---
+  TODO moves here
+  ---
+  TODO assertion here
+TEST
+
+
+test <<-TEST
+  stalemate
+  ---
+  TODO moves here
+  ---
+  TODO assertion here
+TEST
+
+
+test <<-TEST
+  real turns cannot be inserted out of order
+  ---
+  TODO moves here
+  ---
+  TODO assertion here
+TEST
+
+
+test <<-TEST
+  can only move to boards of own color
+  ---
+  TODO moves here
+  ---
+  TODO assertion here
+TEST
 ############################################################################################################################################################
 $output << "select * from test_cases;"
 psql = IO.popen 'psql', 'w'
