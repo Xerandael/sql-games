@@ -102,7 +102,6 @@ create table moves (
   from_x          int not null,
   to_y            int not null,
   from_y          int not null,
-  piece_type      varchar(1) not null, -- TODO: may not be necessary if getting rid of the movement FKs
 
   -------------------------------------------------------------------------------
   -- generated columns
@@ -129,8 +128,6 @@ create index ending_location on moves(game, to_timeline, to_turn, to_x, to_y);
 create index real_turns on moves(game,real_turn);
 -- index to specify the semantics of timeline forking.  Support checking whether a board has been moved to twice.
 create index ending_board_order on moves(game, to_timeline, to_turn, real_turn);
--- useful for finding check and other things
-create index paths on moves(game,piece_type);
 
 --------------------------------------------------------------------------------------------------------------------------------
 

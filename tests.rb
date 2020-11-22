@@ -2,12 +2,11 @@
 $output = [ "drop table if exists test_cases; create table test_cases(name varchar(128), status bool);" ]
 $game_id = 0
 def test(game_id=($game_id += 1),content)
-  return # TODO temp
   name,moves,assertion = content.split '---'
-  moves.split('\n').each{|a|
-    $output << "insert into moves(game,from_timeline,to_timeline,from_turn,to_turn,from_x,to_x,from_y,to_y) values (#{game_id}, #{a});"
+  moves.split('\n').each_with_index{|a,real_turn|
+    $output << "insert into moves(game,real_turn,from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) values (#{game_id},#{real_turn},#{a});"
   }.join
-  $output << "insert into test_cases(name,status) values ("#{name}, (#{assertion}));"
+  $output << "insert into test_cases(name,status) values ('#{name}', (#{assertion}));"
 end
 statements = (File.readlines 'chess.sql')
 statements.reverse.each {|l|
@@ -26,11 +25,13 @@ statements.each {|l| $output << l}
 test <<-TEST
   you have to actually move
   ---
-  TODO moves here
+  1,1,1,1 , 1,1,1,1
   ---
-  TODO assertion here
+  select ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,1,1,1,1)) = 0)
 TEST
 
+#TODO: skip remaining tests
+def test *a; end
 
 test <<-TEST
   cannot insert negative turns -- unless there's some cool reason to do this at some point?
@@ -366,4 +367,4 @@ TEST
 ############################################################################################################################################################
 $output << "select * from test_cases;"
 psql = IO.popen 'psql', 'w'
-psql.puts $output.join
+psql.puts $output.join("\n")
