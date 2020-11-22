@@ -115,19 +115,17 @@ create table moves (
   -------------------------------------------------------------------------------
   -- you have to actually move
   check ((from_timeline != to_timeline) or (from_turn != to_turn) or (from_x != to_x) or (from_y != to_y)),
-  --  ? any given board cannot be moved from twice -- unless castling.  Need to actually perform both moves if using foreign keys to prior piece locations.
-  TODO
-  --  ? timelines stack according to their creator
+  -- if moving from a timeline, a timeline must exist 1 step closer to the origin on the opposing side
   TODO: there may be some sort of arithmetic foreign key to represent this
-  --  ? moving between boards uses up the moves of both (a board moved to cannot be moved from unless both actions happened in the same move) -- what about castling?
-  TODO
+  --  ? moving between boards uses up the moves of both.
 
   -------------------------------------------------------------------------------
   -- indexes -- TODO: go over these once done with data and constraint defs
   -------------------------------------------------------------------------------
 );
 create unique index game_real_turn on moves(game, real_turn);
-create unique index can_only_move_once_per_board_turn on moves(game, from_timeline, from_turn); -- TODO: partial index where king hasn't moved 2 sqs?
+-- castling is handled by just recording the king's move and automatically moving the rook thereafter
+create unique index can_only_move_once_per_board_turn on moves(game, from_timeline, from_turn);
 create index starting_location on moves(game, from_timeline, from_turn, from_x, from_y);
 create index ending_location on moves(game, to_timeline, to_turn, to_x, to_y);
 -- index to specify the semantics of timeline forking.  Support checking whether a board has been moved to twice.

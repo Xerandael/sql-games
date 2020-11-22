@@ -275,7 +275,7 @@ TEST
 
 
 test <<-TEST
-  when castling, the king moves 2 squares
+  when castling, the king moves 2 squares.  or vice versa
   ---
   TODO moves here
   ---
@@ -303,6 +303,15 @@ TEST
 
 test <<-TEST
   a timeline does not have to be moved from if it is inactive
+  ---
+  TODO moves here
+  ---
+  TODO assertion here
+TEST
+
+
+test <<-TEST
+  a board moved to cannot be moved from unless both actions happened in the same move or the movement from it happened first
   ---
   TODO moves here
   ---
