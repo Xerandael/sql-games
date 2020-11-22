@@ -32,6 +32,15 @@ TEST
 
 
 test <<-TEST
+  you cannot move a from a timeline which is further ahead than an active timeline not moved from this real turn yet
+  ---
+  TODO moves here
+  ---
+  TODO assertion here
+TEST
+
+
+test <<-TEST
   players must move their own pieces
   ---
   TODO moves here

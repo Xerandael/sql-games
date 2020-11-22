@@ -94,15 +94,15 @@ create table moves (
   -------------------------------------------------------------------------------
   game            int not null default nextval(game_seq),
   to_timeline     int not null,
-  from_timeline   int not null, -- TODO: can be at most 1 more or less than any other existing timeline for this game.  can't enforce that in this table though I think
-  real_turn       int not null, -- mostly used as a way of tracking the order moves were made in actual time
+  from_timeline   int not null,
+  real_turn       int not null, -- mostly used as a way of tracking the order moves were made in in actual time
   to_turn         int not null check ((to_turn > 0) && ((to_turn > 1) || (from_turn is null))), -- TODO: these constraints aren't quite right
   from_turn       int not null,
   to_x            int not null,
   from_x          int not null,
   to_y            int not null,
   from_y          int not null,
-  piece_type      varchar(1) not null references moves(game,from_timeline), -- TODO: is this something that can be put into the view? -- alternatively, the FK possibilities might be nice here
+  piece_type      varchar(1) not null,
 
   -------------------------------------------------------------------------------
   -- generated columns
@@ -110,31 +110,32 @@ create table moves (
   -- validate sequentiality of real turns starting from 1 per game
   prev_turn       int generated always as nullif((real_turn - 1), 0) stored references moves(game, real_turn),
   -- validate that we're not creating timelines at n distance from the origin till we have one at (n-1) distance from the origin
+  -- TODO: does this work if timelines are newly-created?
   inward_timeline int not null generated always as ((abs(from_timeline) - 1) * ((-1 * (0 ^ from_timeline)::int) + 1)) stored references moves(from_timeline),
   -- tools for validating the chain of moves made by any given piece -- hacks using nulls and FKs
-  has_prev_turn   bool generated always as (nullif((real_turn - 1), 0) is not null) stored,
+  has_prev_turn   bool generated always as (real_turn > 1) stored,
   is_not_init     bool generated always as (t),
 
   -------------------------------------------------------------------------------
   -- constraints
   -------------------------------------------------------------------------------
   -- you have to actually move
-  check ((from_timeline != to_timeline) or (from_turn != to_turn) or (from_x != to_x) or (from_y != to_y))
+  check ((from_timeline != to_timeline) or (from_turn != to_turn) or (from_x != to_x) or (from_y != to_y)),
   --  ? players must move their own pieces
   TODO
   --  ? any linear movement stops if it hits an edge of a board
   TODO
-  --  ? any given board cannot be moved from twice -- unless castling
+  --  ? any given board cannot be moved from twice -- unless castling.  Need to actually perform both moves if using foreign keys to prior piece locations.
   TODO
   --  ? timelines stack according to their creator
   TODO
-  --  - moves alternate between pieces of opposing color
+  --  - moves alternate between pieces of opposing color -- except all timelines in the present must be moved on in a row by each player
   TODO
-  --  ? moving between boards uses up the moves of both (a board moved to cannot be moved from unless both actions happened in the same move)
+  --  ? moving between boards uses up the moves of both (a board moved to cannot be moved from unless both actions happened in the same move) -- what about castling?
   TODO
-  --  ? a timeline cannot be moved from if it is inactive (this might actually be enforeceable in `moves`)
-  TODO
-  -- you can only move a piece from where it was -- works for the first move because of the helper derived column `is_first_move` which is null and invalidates the FK on first move
+  --  ? a timeline cannot be moved from if it is inactive (this might actually be enforeceable in `moves`).  -- cannot or does not have to be?
+  TODO foreign key from inward_timeline to negation of inward_timeline?  will that work for newly-created but unmoved-upon foreign timelines?
+  -- you can only move a piece from where it was -- works for the first move because `has_prev_move` is null which deactivates the constraint
   foreign key (game,from_timeline,from_turn,from_x,from_y,piece,has_prev_turn) references moves(game,to_timeline,to_turn,to_x,to_y,piece,is_not_init),
 
   -------------------------------------------------------------------------------
