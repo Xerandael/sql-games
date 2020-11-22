@@ -110,8 +110,6 @@ create table moves (
   -- validate sequentiality of real turns starting from 1 per game
   prev_turn       int generated always as nullif((real_turn - 1), 0) stored references moves(game, real_turn),
   -- validate that we're not creating timelines at n distance from the origin till we have one at (n-1) distance from the origin
-  -- TODO: does this work if timelines are newly-created?
-  inward_timeline int not null generated always as ((abs(from_timeline) - 1) * ((-1 * (0 ^ from_timeline)::int) + 1)) stored references moves(from_timeline),
   -- tools for validating the chain of moves made by any given piece -- hacks using nulls and FKs
   has_prev_turn   bool generated always as (real_turn > 1) stored,
   is_not_init     bool generated always as (t),
