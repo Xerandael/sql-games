@@ -115,14 +115,10 @@ create table moves (
   -------------------------------------------------------------------------------
   -- you have to actually move
   check ((from_timeline != to_timeline) or (from_turn != to_turn) or (from_x != to_x) or (from_y != to_y)),
-  --  ? players must move their own pieces
-  TODO
   --  ? any given board cannot be moved from twice -- unless castling.  Need to actually perform both moves if using foreign keys to prior piece locations.
   TODO
   --  ? timelines stack according to their creator
   TODO: there may be some sort of arithmetic foreign key to represent this
-  --  - moves alternate between pieces of opposing color -- except all timelines in the present must be moved on in a row by each player
-  TODO
   --  ? moving between boards uses up the moves of both (a board moved to cannot be moved from unless both actions happened in the same move) -- what about castling?
   TODO
 
