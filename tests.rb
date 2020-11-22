@@ -2,6 +2,7 @@
 $output = [ "drop table if exists test_cases; create table test_cases(name varchar(128), status bool);" ]
 $game_id = 0
 def test(game_id=($game_id += 1),content)
+  return # TODO temp
   name,moves,assertion = content.split '---'
   moves.split('\n').each{|a|
     $output << "insert into moves(game,from_timeline,to_timeline,from_turn,to_turn,from_x,to_x,from_y,to_y) values (#{game_id}, #{a});"
@@ -24,6 +25,15 @@ statements.each {|l| $output << l}
 ############################################################################################################################################################
 test <<-TEST
   you have to actually move
+  ---
+  TODO moves here
+  ---
+  TODO assertion here
+TEST
+
+
+test <<-TEST
+  cannot insert negative turns -- unless there's some cool reason to do this at some point?
   ---
   TODO moves here
   ---

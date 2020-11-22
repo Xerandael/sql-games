@@ -92,11 +92,11 @@ create table moves (
   -------------------------------------------------------------------------------
   -- base columns
   -------------------------------------------------------------------------------
-  game            int not null default nextval(game_seq),
+  game            int not null default nextval('game_seq'),
   to_timeline     int not null,
   from_timeline   int not null,
   real_turn       int not null, -- mostly used as a way of tracking the order moves were made in in actual time
-  to_turn         int not null check ((to_turn > 0) && ((to_turn > 1) || (from_turn is null))), -- TODO: these constraints aren't quite right
+  to_turn         int not null check (to_turn > 0),
   from_turn       int not null,
   to_x            int not null,
   from_x          int not null,
@@ -107,45 +107,45 @@ create table moves (
   -------------------------------------------------------------------------------
   -- generated columns
   -------------------------------------------------------------------------------
-  -- validate sequentiality of real turns starting from 1 per game
-  prev_turn       int generated always as nullif((real_turn - 1), 0) stored references moves(game, real_turn),
+  prev_turn       int generated always as (nullif((real_turn - 1), 0)) stored,
 
   -------------------------------------------------------------------------------
   -- constraints
   -------------------------------------------------------------------------------
   -- you have to actually move
   check ((from_timeline != to_timeline) or (from_turn != to_turn) or (from_x != to_x) or (from_y != to_y)),
-  -- if moving from a timeline, a timeline must exist 1 step closer to the origin on the opposing side
-  TODO: there may be some sort of arithmetic foreign key to represent this
-  --  ? moving between boards uses up the moves of both.
+  -- validate sequentiality of real turns starting at turn 1 each game
+  unique(game, real_turn),
+  foreign key (game,prev_turn) references moves(game,real_turn)
 
   -------------------------------------------------------------------------------
-  -- indexes -- TODO: go over these once done with data and constraint defs
+  -- indexes
   -------------------------------------------------------------------------------
 );
-create unique index game_real_turn on moves(game, real_turn);
 -- castling is handled by just recording the king's move and automatically moving the rook thereafter
 create unique index can_only_move_once_per_board_turn on moves(game, from_timeline, from_turn);
 create index starting_location on moves(game, from_timeline, from_turn, from_x, from_y);
 create index ending_location on moves(game, to_timeline, to_turn, to_x, to_y);
+create index real_turns on moves(game,real_turn);
 -- index to specify the semantics of timeline forking.  Support checking whether a board has been moved to twice.
 create index ending_board_order on moves(game, to_timeline, to_turn, real_turn);
--- TODO: index of check?  probably not possible in any useful way.  maybe with the `piece_type` column?
+-- useful for finding check and other things
+create index paths on moves(game,piece_type);
 
 --------------------------------------------------------------------------------------------------------------------------------
 
--- TODO: filter invalid movements and all subsequent events per game
-create view state as (
-  with recursive state -- TODO recursive, grouped self-join???
-);
-
--- black and white should be + and - 1 for the purposes of pawn movements as well as timelines.
-
--- define betweenness as opposed to defining iteration of moves
--- join against the set of all pieces on whether they're linearly-between the start and end
-
--- TODO: `timelines` view
--- TODO: `available_moves` view used for presentation as well as validation
--- TODO: piece movement definitions
-big piece switch statement with movement mechanic defintions?  joins of some sort?  left join after left join?
-dynamic and/or normalized movement defintions?  maybe this even simplifies some things.
+-- -- TODO: filter invalid movements and all subsequent events per game
+-- create view state as (
+--   with recursive state -- TODO recursive, grouped self-join???
+-- );
+-- 
+-- -- black and white should be + and - 1 for the purposes of pawn movements as well as timelines.
+-- 
+-- -- define betweenness as opposed to defining iteration of moves
+-- -- join against the set of all pieces on whether they're linearly-between the start and end
+-- 
+-- -- TODO: `timelines` view
+-- -- TODO: `available_moves` view used for presentation as well as validation
+-- -- TODO: piece movement definitions
+-- big piece switch statement with movement mechanic defintions?  joins of some sort?  left join after left join?
+-- dynamic and/or normalized movement defintions?  maybe this even simplifies some things.
