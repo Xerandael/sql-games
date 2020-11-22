@@ -302,7 +302,7 @@ TEST
 
 
 test <<-TEST
-  a timeline cannot be moved from if it is inactive (this might actually be enforeceable in `moves`)
+  a timeline does not have to be moved from if it is inactive
   ---
   TODO moves here
   ---

@@ -102,17 +102,13 @@ create table moves (
   from_x          int not null,
   to_y            int not null,
   from_y          int not null,
-  piece_type      varchar(1) not null,
+  piece_type      varchar(1) not null, -- TODO: may not be necessary if getting rid of the movement FKs
 
   -------------------------------------------------------------------------------
   -- generated columns
   -------------------------------------------------------------------------------
   -- validate sequentiality of real turns starting from 1 per game
   prev_turn       int generated always as nullif((real_turn - 1), 0) stored references moves(game, real_turn),
-  -- validate that we're not creating timelines at n distance from the origin till we have one at (n-1) distance from the origin
-  -- tools for validating the chain of moves made by any given piece -- hacks using nulls and FKs
-  has_prev_turn   bool generated always as (real_turn > 1) stored,
-  is_not_init     bool generated always as (t),
 
   -------------------------------------------------------------------------------
   -- constraints
@@ -121,20 +117,14 @@ create table moves (
   check ((from_timeline != to_timeline) or (from_turn != to_turn) or (from_x != to_x) or (from_y != to_y)),
   --  ? players must move their own pieces
   TODO
-  --  ? any linear movement stops if it hits an edge of a board
-  TODO
   --  ? any given board cannot be moved from twice -- unless castling.  Need to actually perform both moves if using foreign keys to prior piece locations.
   TODO
   --  ? timelines stack according to their creator
-  TODO
+  TODO: there may be some sort of arithmetic foreign key to represent this
   --  - moves alternate between pieces of opposing color -- except all timelines in the present must be moved on in a row by each player
   TODO
   --  ? moving between boards uses up the moves of both (a board moved to cannot be moved from unless both actions happened in the same move) -- what about castling?
   TODO
-  --  ? a timeline cannot be moved from if it is inactive (this might actually be enforeceable in `moves`).  -- cannot or does not have to be?
-  TODO foreign key from inward_timeline to negation of inward_timeline?  will that work for newly-created but unmoved-upon foreign timelines?
-  -- you can only move a piece from where it was -- works for the first move because `has_prev_move` is null which deactivates the constraint
-  foreign key (game,from_timeline,from_turn,from_x,from_y,piece,has_prev_turn) references moves(game,to_timeline,to_turn,to_x,to_y,piece,is_not_init),
 
   -------------------------------------------------------------------------------
   -- indexes -- TODO: go over these once done with data and constraint defs
@@ -144,10 +134,9 @@ create unique index game_real_turn on moves(game, real_turn);
 create unique index can_only_move_once_per_board_turn on moves(game, from_timeline, from_turn); -- TODO: partial index where king hasn't moved 2 sqs?
 create index starting_location on moves(game, from_timeline, from_turn, from_x, from_y);
 create index ending_location on moves(game, to_timeline, to_turn, to_x, to_y);
--- TODO: This index was an attempt to specify the semantics of timeline forking.  This doesn't completely capture all cases, namely it does not account for
--- forward creation, where a past timeline jumps forward to a future board on another timeline.  Investigate whether this index is worth keeping and/or what
--- new indexes can support the full semantics of checking whether a board has been moved to twice.
-create index potential_timeline_creations on moves(game, from_timeline, to_turn) where (from_turn > to_turn);
+-- index to specify the semantics of timeline forking.  Support checking whether a board has been moved to twice.
+create index ending_board_order on moves(game, to_timeline, to_turn, real_turn);
+-- TODO: index of check?  probably not possible in any useful way.  maybe with the `piece_type` column?
 
 --------------------------------------------------------------------------------------------------------------------------------
 
