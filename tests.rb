@@ -40,17 +40,6 @@ TEST
 
 $skip = true
 test <<-TEST
-  you cannot move a from a timeline which is further ahead than an active timeline not moved from this real turn yet
-  ---
-  TODO moves here
-  ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
-TEST
-
-
-$skip = true
-test <<-TEST
   players must move their own pieces
   ---
   TODO moves here
