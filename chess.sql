@@ -95,7 +95,7 @@ create table moves (
   game            int not null default nextval('game_seq'),
   to_timeline     int not null,
   from_timeline   int not null,
-  real_turn       int not null, -- mostly used as a way of tracking the order moves were made in in actual time
+  real_turn       int not null check (real_turn > 0), -- mostly used as a way of tracking the order moves were made in in actual time
   to_turn         int not null check (to_turn > 0),
   from_turn       int not null,
   to_x            int not null,
@@ -115,7 +115,9 @@ create table moves (
   check ((from_timeline != to_timeline) or (from_turn != to_turn) or (from_x != to_x) or (from_y != to_y)),
   -- validate sequentiality of real turns starting at turn 1 each game
   unique(game, real_turn),
-  foreign key (game,prev_turn) references moves(game,real_turn)
+  foreign key (game,prev_turn) references moves(game,real_turn),
+  -- can only move to boards of own color
+  check ((from_turn % 2) = (to_turn % 2))
 
   -------------------------------------------------------------------------------
   -- indexes
