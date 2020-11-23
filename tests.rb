@@ -45,6 +45,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -55,6 +56,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -65,6 +67,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -75,6 +78,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -85,6 +89,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -95,6 +100,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -105,6 +111,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -115,6 +122,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -125,6 +133,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -135,6 +144,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -145,6 +155,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -155,6 +166,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -165,6 +177,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -175,6 +188,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -185,6 +199,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -193,7 +208,7 @@ test <<-TEST
   ---
   1,1,1,1 , 2,1,1,1
   1,1,1,1 , 3,1,1,1
-  2,1,1,1 , 4,1,1,1 -- TODO: still getting inserted.  is this enforceable in `moves` constraints alone`?
+  2,1,1,1 , 4,1,1,1
   ---
   ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
   ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,3,1,1,1)) = 0) and
@@ -208,6 +223,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -218,6 +234,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -228,6 +245,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -238,6 +256,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -248,6 +267,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -258,6 +278,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -268,6 +289,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -278,6 +300,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -288,6 +311,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -298,6 +322,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -308,6 +333,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -318,6 +344,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -328,6 +355,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -338,6 +366,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -348,6 +377,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -358,6 +388,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
@@ -368,6 +399,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
+  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
