@@ -84,6 +84,12 @@ create materialized view initial_board as (
   join board on squares.square_num = board.n
 );
 
+create view piece_movements as (
+-- -- TODO: piece movement definitions
+-- switch statement with movement mechanic defintions?  joins of some sort?  left join after left join?
+-- dynamic and/or normalized movement defintions?  maybe this even simplifies some things.
+);
+
 create sequence game_seq;
 
 --------------------------------------------------------------------------------------------------------------------------------
@@ -107,6 +113,8 @@ create table moves (
   -- generated columns
   -------------------------------------------------------------------------------
   prev_turn       int generated always as (nullif((real_turn - 1), 0)) stored,
+  -- black and white should be + and - 1 for the purposes of pawn movements as well as timelines.
+  player          int generated always as (((from_turn % 2) * 2) - 1) stored,
 
   -------------------------------------------------------------------------------
   -- constraints
@@ -133,18 +141,32 @@ create index ending_board_order on moves(game, to_timeline, to_turn, real_turn);
 
 --------------------------------------------------------------------------------------------------------------------------------
 
+create view timelines as (
+  with recursive timelines as (
+    with available_moves as (
+      -- TODO:  join positions of moveable pieces against piece movements
+    )
+    select *
+    from timelines t
+    join available_moves a on ((a.from_timeline = t.timeline) and (a.from_turn = t.turn))
+  )
+  select *
+  from timelines
+);
+
+create view available_moves as (
+  select null -- TODO
+);
+
+create view timelines as (
+  select 1 game -- TODO
+);
 -- -- TODO: filter invalid movements and all subsequent events per game
 -- create view state as (
 --   with recursive state -- TODO recursive, grouped self-join???
 -- );
 -- 
--- -- black and white should be + and - 1 for the purposes of pawn movements as well as timelines.
 -- 
 -- -- define betweenness as opposed to defining iteration of moves
 -- -- join against the set of all pieces on whether they're linearly-between the start and end
 -- 
--- -- TODO: `timelines` view
--- -- TODO: `available_moves` view used for presentation as well as validation
--- -- TODO: piece movement definitions
--- big piece switch statement with movement mechanic defintions?  joins of some sort?  left join after left join?
--- dynamic and/or normalized movement defintions?  maybe this even simplifies some things.

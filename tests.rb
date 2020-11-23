@@ -2,10 +2,6 @@
 $output = [ "drop table if exists test_cases; create table test_cases(name varchar(128), status bool);" ]
 $game_id = 0
 def test(game_id=($game_id += 1),content)
-  if $skip
-    $skip = false
-    return
-  end
   name,moves,assertion = content.split '---'
   moves.split("\n")[1..-2].each{|a|
     $output << <<-SQL
@@ -13,7 +9,7 @@ def test(game_id=($game_id += 1),content)
       values (#{game_id},(select count(*) + 1 from moves where game = #{game_id}),#{a});
     SQL
   }.join
-  $output << "insert into test_cases(name,status) values ('#{name}', (#{assertion}));"
+  $output << "insert into test_cases(name,status) values ('#{name}', (#{assertion.gsub '$game_id', $game_id.to_s}));"
 end
 statements = (File.readlines 'chess.sql')
 statements.reverse.each {|l|
@@ -38,29 +34,26 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   players must move their own pieces
   ---
-  TODO moves here
+  1,1,1,7 , 1,1,1,5
   ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
+  ((select count(*) from timelines where (game) = ($game_id)) = 0)
 TEST
 
 
-$skip = true
 test <<-TEST
   a timeline is created on the player's stack when moving to a board which has already been moved to
   ---
-  TODO moves here
+  1,1,5,2 , 1,1,5,4
+  1,2,5,7 , 1,1,5,5
+  1,3,7,1 , 1,1,7,3
   ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
+  ((select count(distinct(timeline)) from timelines where (game) = ($game_id)) = 2)
 TEST
 
 
-$skip = true
 test <<-TEST
   you can only capture the enemy's pieces
   ---
@@ -71,7 +64,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   any linear movement stops as soon as it encounters another piece
   ---
@@ -82,7 +74,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   any linear movement stops if it hits an edge of a board
   ---
@@ -93,7 +84,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   any linear movement through time or timelines stops if there's no board, a gap
   ---
@@ -104,7 +94,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   knights can jump over gaps 
   ---
@@ -115,7 +104,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   any given board cannot be moved from twice -- unless castling
   ---
@@ -126,7 +114,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   the move has to actually make sense for the given piece
   ---
@@ -137,7 +124,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   if a move is made, it must be from a position previously moved to or from the starting position
   ---
@@ -148,7 +134,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   a timeline is created when moving to a board which has already been moved to
   ---
@@ -159,7 +144,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   timelines stack according to their creator
   ---
@@ -170,7 +154,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   moves alternate between pieces of opposing color.  each player moves pieces on each board before the next player can move.
   ---
@@ -181,7 +164,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   pieces are removed when taken
   ---
@@ -205,7 +187,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   if one is in check, one cannot move a piece except to leave check
   ---
@@ -216,7 +197,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   one cannot move a piece such that one enters oneself into check
   ---
@@ -227,7 +207,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   pawns move one square forward in the direction of their color
   ---
@@ -238,7 +217,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   pawns can move two squares on initial movement
   ---
@@ -249,7 +227,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   pawns must move diagonally to capture
   ---
@@ -260,7 +237,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   pawns can only move diagonally when capturing
   ---
@@ -271,7 +247,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   pawns can en-passant each other
   ---
@@ -282,7 +257,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   castling can only happen if neither piece has moved
   ---
@@ -293,7 +267,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   castling can only happen if there are not pieces between the two
   ---
@@ -304,7 +277,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   castling cannot happen in check
   ---
@@ -315,7 +287,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   when castling, the king moves 2 squares.  or vice versa
   ---
@@ -326,7 +297,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   when castling, the rook moves along with the king
   ---
@@ -337,7 +307,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   pawn promotion
   ---
@@ -348,7 +317,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   a timeline does not have to be moved from if it is inactive
   ---
@@ -359,7 +327,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   a board moved to cannot be moved from unless both actions happened in the same move or the movement from it happened first
   ---
@@ -370,7 +337,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   checkmate
   ---
@@ -381,7 +347,6 @@ test <<-TEST
 TEST
 
 
-$skip = true
 test <<-TEST
   stalemate
   ---
@@ -404,6 +369,6 @@ test <<-TEST
   )
 TEST
 ############################################################################################################################################################
-$output << "select * from test_cases;"
+$output << "select name from test_cases where status = f;"
 psql = IO.popen 'psql', 'w'
 psql.puts $output.join("\n")
