@@ -113,7 +113,7 @@ create table moves (
   -- generated columns
   -------------------------------------------------------------------------------
   prev_turn       int generated always as (nullif((real_turn - 1), 0)) stored,
-  -- black and white should be + and - 1 for the purposes of pawn movements as well as timelines.
+  -- black is 1 and white is -1 the purposes of pawn movements as well as timelines
   player          int generated always as (((from_turn % 2) * 2) - 1) stored,
 
   -------------------------------------------------------------------------------
