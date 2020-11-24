@@ -35,22 +35,13 @@ TEST
 
 
 test <<-TEST
-  players must move their own pieces
-  ---
-  1,1,1,7 , 1,1,1,5
-  ---
-  ((select count(*) from timelines where (game) = ($game_id)) = 0)
-TEST
-
-
-test <<-TEST
   a timeline is created on the player's stack when moving to a board which has already been moved to
   ---
   1,1,5,2 , 1,1,5,4
   1,2,5,7 , 1,1,5,5
   1,3,7,1 , 1,1,7,3
   ---
-  ((select count(distinct(timeline)) from timelines where (game) = ($game_id)) = 2)
+  select ((select count(distinct(timeline)) from timelines where (game) = ($game_id)) = 2)
 TEST
 
 
@@ -78,7 +69,7 @@ test <<-TEST
   1,2,5,7 , 1,1,5,5
   1,3,4,1 , 1,3,4,5
   ---
-  ((select count(distinct(turn)) from timelines where game = $game_id) = 2)
+  select ((select count(distinct(turn)) from timelines where game = $game_id) = 2)
 TEST
 
 
@@ -89,7 +80,7 @@ test <<-TEST
   1,2,5,7 , 1,1,5,5
   1,3,4,1 , 1,3,9,6
   ---
-  ((select count(distinct(turn)) from timelines where game = $game_id) = 2)
+  select ((select count(distinct(turn)) from timelines where game = $game_id) = 2)
 TEST
 
 
@@ -99,7 +90,7 @@ test <<-TEST
   TODO moves here
   ---
   TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
+  select ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1)
 TEST
 
 
@@ -120,7 +111,7 @@ test <<-TEST
   2,6,4,5 , 2,6,6,6
   4,5,6,5 , 2,7,6,5
   ---
-  ((select count(*) from timelines where game = $game_id) = 18)
+  select ((select count(*) from timelines where game = $game_id) = 18)
 TEST
 
 
@@ -201,9 +192,13 @@ test <<-TEST
   1,1,1,1 , 3,1,1,1
   2,1,1,1 , 4,1,1,1
   ---
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,3,1,1,1)) = 0) and
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (2,1,1,1,4,1,1,1)) = 0)
+  select (
+    ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1)
+    and
+    ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,3,1,1,1)) = 0)
+    and
+    ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (2,1,1,1,4,1,1,1)) = 0)
+  )
 TEST
 
 
