@@ -9,7 +9,7 @@ def test(game_id=($game_id += 1),content)
       values (#{game_id},(select count(*) + 1 from moves where game = #{game_id}),#{a});
     SQL
   }.join
-  $output << "insert into test_cases(name,status) values ('#{name}', (#{assertion.gsub '$game_id', $game_id.to_s}));"
+  $output << "insert into test_cases(name,status) values ('#{name.gsub "'", "''"}', (#{assertion.gsub '$game_id', $game_id.to_s}));"
 end
 statements = (File.readlines 'chess.sql')
 statements.reverse.each {|l|
@@ -72,22 +72,24 @@ TEST
 
 
 test <<-TEST
-  any linear movement stops as soon as it encounters another piece
+  linear movement cannot go through another piece
   ---
-  TODO moves here
+  1,1,4,2 , 1,1,4,4
+  1,2,5,7 , 1,1,5,5
+  1,3,4,1 , 1,3,4,5
   ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
+  ((select count(distinct(turn)) from timelines where game = $game_id) = 2)
 TEST
 
 
 test <<-TEST
-  any linear movement stops if it hits an edge of a board
+  linear movement cannot go past the edge of a board
   ---
-  TODO moves here
+  1,1,5,2 , 1,1,5,4
+  1,2,5,7 , 1,1,5,5
+  1,3,4,1 , 1,3,9,6
   ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
+  ((select count(distinct(turn)) from timelines where game = $game_id) = 2)
 TEST
 
 
@@ -104,10 +106,21 @@ TEST
 test <<-TEST
   knights can jump over gaps 
   ---
-  TODO moves here
+  1,1,7,1 , 1,1,6,3
+  1,2,7,8 , 1,2,6,6
+  1,3,6,3 , 1,1,6,5
+  2,2,7,8 , 2,2,6,6
+  2,3,6,5 , 1,3,6,7
+  1,4,7,8 , 1,4,6,6
+  2,4,6,6 , 2,4,4,5
+  1,5,2,1 , 1,5,1,3
+  2,5,2,1 , 2,3,2,3
+  4,4,6,6 , 4,4,4,5
+  1,6,7,8 , 1,6,6,6
+  2,6,4,5 , 2,6,6,6
+  4,5,6,5 , 2,7,6,5
   ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
+  ((select count(*) from timelines where game = $game_id) = 18)
 TEST
 
 
@@ -375,7 +388,21 @@ test <<-TEST
     ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (2,2,2,2,2,4,2,2)) = 1)
   )
 TEST
+
+
+# TODO
+# test <<-TEST
+#   castling across timelines uses up the moves of 4 boards
+#   ---
+#   1,1,1,1 , 1,2,1,1
+#   2,2,2,2 , 2,4,2,2
+#   ---
+#   select (
+#     ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,1,2,1,1)) = 0) and
+#     ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (2,2,2,2,2,4,2,2)) = 1)
+#   )
+# TEST
 ############################################################################################################################################################
-$output << "select name from test_cases where status = f;"
+$output << "select * from test_cases order by status desc;"
 psql = IO.popen 'psql', 'w'
 psql.puts $output.join("\n")

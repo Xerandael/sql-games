@@ -169,4 +169,5 @@ create view timelines as (
 -- 
 -- -- define betweenness as opposed to defining iteration of moves
 -- -- join against the set of all pieces on whether they're linearly-between the start and end
--- 
+-- TODO: I think the moving player has to be determined by the color of the piece being moved with only validation by determining whether
+-- that player can move 
