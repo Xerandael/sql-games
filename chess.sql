@@ -159,7 +159,7 @@ create view available_moves as (
 );
 
 create view timelines as (
-  select 1 game -- TODO
+  select 1 game, 1 timeline, 1 turn -- TODO mock data
 );
 -- -- TODO: filter invalid movements and all subsequent events per game
 -- create view state as (

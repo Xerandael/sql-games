@@ -2,6 +2,7 @@
 $output = [ "drop table if exists test_cases; create table test_cases(name varchar(128), status bool);" ]
 $game_id = 0
 def test(game_id=($game_id += 1),content)
+  return if content.include? 'TODO'
   name,moves,assertion = content.split '---'
   moves.split("\n")[1..-2].each{|a|
     $output << <<-SQL
