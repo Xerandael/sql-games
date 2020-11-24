@@ -2,8 +2,10 @@
 $output = [ "drop table if exists test_cases; create table test_cases(name varchar(128), status bool);" ]
 $game_id = 0
 def test(game_id=($game_id += 1),content)
-  return if content.include? 'TODO'
   name,moves,assertion = content.split '---'
+  if content.include? 'TODO'
+    $output << "insert into test_cases(name,status) values ('#{name.gsub "'", "''"}', false);"
+  end
   moves.split("\n")[1..-2].each{|a|
     $output << <<-SQL
       insert into moves(game,real_turn,from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y)
