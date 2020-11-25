@@ -90,15 +90,25 @@ TEST
 test <<-TEST
   any linear movement through time or timelines stops if there's no board, a gap
   ---
-  TODO moves here
+  1,1,4,2 , 1,1,4,4
+  1,2,3,7 , 1,1,3,5
+  1,3,4,4 , 1,3,3,5
+  1,4,4,8 , 1,4,3,7
+  1,5,4,1 , 1,1,4,3
+  2,2,7,8 , 2,2,8,6
+  2,3,7,1 , 1,3,7,3
+  2,4,8,6 , 2,4,6,5
+  2,5,4,3 , 1,3,3,4
+  4,4,2,8 , 4,4,1,6
+  2,6,6,5 , 1,6,4,5
+  4,5,3,4 , 2,5,3,6
   ---
-  TODO assertion here
-  select ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1)
+  select ((select count(*) from piece_positions where (game = $game_id) and (x = 3) and (y = 6)) = 0)
 TEST
 
 
 test <<-TEST
-  knights can jump over gaps 
+  knights can jump over missing boards in timeline-space
   ---
   1,1,7,1 , 1,1,6,3
   1,2,7,8 , 1,2,6,6
@@ -388,18 +398,19 @@ test <<-TEST
 TEST
 
 
-# TODO
-# test <<-TEST
-#   castling across timelines uses up the moves of 4 boards
-#   ---
-#   1,1,1,1 , 1,2,1,1
-#   2,2,2,2 , 2,4,2,2
-#   ---
-#   select (
-#     ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,1,2,1,1)) = 0) and
-#     ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (2,2,2,2,2,4,2,2)) = 1)
-#   )
-# TEST
+test <<-TEST
+  castling across timelines uses up the moves of 4 boards -- TODO: only makes sense in special variants
+  ---
+  TODO
+  1,1,1,1 , 1,2,1,1
+  2,2,2,2 , 2,4,2,2
+  ---
+  TODO
+  select (
+    ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,1,2,1,1)) = 0) and
+    ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (2,2,2,2,2,4,2,2)) = 1)
+  )
+TEST
 ############################################################################################################################################################
 $output << "select * from test_cases order by status desc;"
 psql = IO.popen 'psql', 'w'

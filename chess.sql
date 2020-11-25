@@ -21,8 +21,8 @@ create view board as (
     limit 8
   )
   select *, row_number() over () as n
-  from width
-  cross join height
+  from height
+  cross join width
 );
 
 create materialized view linear_movement_basis_vectors as (
@@ -171,3 +171,6 @@ create view timelines as (
 -- -- join against the set of all pieces on whether they're linearly-between the start and end
 -- TODO: I think the moving player has to be determined by the color of the piece being moved with only validation by determining whether
 -- that player can move 
+
+-- TODO: `piece_positions` view
+-- TODO: `board_events` view?
