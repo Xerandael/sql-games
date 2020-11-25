@@ -191,10 +191,16 @@ TEST
 test <<-TEST
   pieces are removed when taken
   ---
-  TODO moves here
+  1,1,5,2 , 1,1,5,4
+  1,2,5,7 , 1,1,5,5
+  1,3,5,4 , 1,3,4,5
+  1,4,1,7 , 1,4,1,6
   ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
+  (select(
+    (select count(*) from timelines where (piece_color = 1) and (game = $game_id))
+    >
+    (select count(*) from timelines where (piece_color = -1) and (game = $game_id))
+  ))
 TEST
 
 
