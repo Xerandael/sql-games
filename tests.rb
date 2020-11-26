@@ -108,6 +108,27 @@ TEST
 
 
 test <<-TEST
+  a timeline does not have to be moved from if it is inactive
+  ---
+  1,1,7,1 , 1,1,6,3
+  1,2,7,8 , 1,2,6,6
+  1,3,6,3 , 1,1,6,5
+  2,2,7,8 , 2,2,6,6
+  2,3,6,5 , 1,3,6,7
+  1,4,7,8 , 1,4,6,6
+  2,4,6,6 , 2,4,4,5
+  1,5,2,1 , 1,5,1,3
+  2,5,2,1 , 2,3,2,3
+  4,4,6,6 , 4,4,4,5
+  1,6,7,8 , 1,6,6,6
+  2,6,4,5 , 2,6,6,6
+  4,5,6,5 , 2,7,6,5
+  ---
+  select ((select count(*) from timelines where game = $game_id) = 18)
+TEST
+
+
+test <<-TEST
   knights can jump over missing boards in timeline-space
   ---
   1,1,7,1 , 1,1,6,3
@@ -151,30 +172,52 @@ TEST
 test <<-TEST
   if a move is made, it must be from a position previously moved to or from the starting position
   ---
-  TODO moves here
+  1,1,6,6 , 1,1,6,5
+  1,2,5,4 , 1,2,5,5
   ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
+  select ((select count(*) from timelines where game = $game_id) = 0)
 TEST
 
 
 test <<-TEST
   a timeline is created when moving to a board which has already been moved to
   ---
-  TODO moves here
+  1,1,7,1 , 1,1,6,3
+  1,2,7,8 , 1,2,6,6
+  1,3,6,3 , 1,1,6,5
+  2,2,7,8 , 2,2,6,6
+  2,3,6,5 , 1,3,6,7
+  1,4,7,8 , 1,4,6,6
+  2,4,6,6 , 2,4,4,5
+  1,5,2,1 , 1,5,1,3
+  2,5,2,1 , 2,3,2,3
+  4,4,6,6 , 4,4,4,5
+  1,6,7,8 , 1,6,6,6
+  2,6,4,5 , 2,6,6,6
+  4,5,6,5 , 2,7,6,5
   ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
+  select ((select count(distinct(timeline)) from timelines where game = $game_id) = 4)
 TEST
 
 
 test <<-TEST
   timelines stack according to their creator
   ---
-  TODO moves here
+  1,1,7,1 , 1,1,6,3
+  1,2,7,8 , 1,2,6,6
+  1,3,6,3 , 1,1,6,5
+  2,2,7,8 , 2,2,6,6
+  2,3,6,5 , 1,3,6,7
+  1,4,7,8 , 1,4,6,6
+  2,4,6,6 , 2,4,4,5
+  1,5,2,1 , 1,5,1,3
+  2,5,2,1 , 2,3,2,3
+  4,4,6,6 , 4,4,4,5
+  1,6,7,8 , 1,6,6,6
+  2,6,4,5 , 2,6,6,6
+  4,5,6,5 , 2,7,6,5
   ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
+  select ((select sum(distinct(timeline)) from timelines where game = $game_id) = 6)
 TEST
 
 
@@ -352,16 +395,6 @@ TEST
 
 
 test <<-TEST
-  a timeline does not have to be moved from if it is inactive
-  ---
-  TODO moves here
-  ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
-TEST
-
-
-test <<-TEST
   a board moved to cannot be moved from unless both actions happened in the same move or the movement from it happened first
   ---
   TODO moves here
@@ -382,36 +415,11 @@ TEST
 
 
 test <<-TEST
-  stalemate
-  ---
-  TODO moves here
-  ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
-TEST
-
-
-test <<-TEST
   can only move to boards of own color
   ---
   1,1,1,1 , 1,2,1,1
   2,2,2,2 , 2,4,2,2
   ---
-  select (
-    ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,1,2,1,1)) = 0) and
-    ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (2,2,2,2,2,4,2,2)) = 1)
-  )
-TEST
-
-
-test <<-TEST
-  castling across timelines uses up the moves of 4 boards -- TODO: only makes sense in special variants
-  ---
-  TODO
-  1,1,1,1 , 1,2,1,1
-  2,2,2,2 , 2,4,2,2
-  ---
-  TODO
   select (
     ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,1,2,1,1)) = 0) and
     ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (2,2,2,2,2,4,2,2)) = 1)
