@@ -151,28 +151,6 @@ TEST
 
 
 test <<-TEST
-  castling
-  ---
-  1,1,7,1 , 1,1,6,3
-  1,2,1,7 , 1,2,1,5
-  1,3,7,2 , 1,3,7,3
-  1,4,2,7 , 1,4,2,5
-  1,5,6,1 , 1,5,7,2
-  1,6,3,7 , 1,6,3,5
-  1,7,5,1 , 1,7,7,1
-  ---
-  select (select (
-    select count(*)
-    from piece_locations
-    where game = $game_id
-    and   piece_type = 'r'
-    and   piece_color = '-1'
-    and   x = 6
-  ) = 1)
-TEST
-
-
-test <<-TEST
   the move has to actually make sense for the given piece
   ---
   1,1,1,2 , 1,1,2,4
@@ -348,47 +326,71 @@ TEST
 
 
 test <<-TEST
+  castling
+  ---
+  1,1,7,1 , 1,1,6,3
+  1,2,1,7 , 1,2,1,5
+  1,3,7,2 , 1,3,7,3
+  1,4,2,7 , 1,4,2,5
+  1,5,6,1 , 1,5,7,2
+  1,6,3,7 , 1,6,3,5
+  1,7,5,1 , 1,7,7,1
+  ---
+  select (select (
+    select count(*)
+    from piece_locations
+    where game = $game_id
+    and   piece_type = 'r'
+    and   piece_color = '-1'
+    and   x = 6
+  ) = 1)
+TEST
+
+
+test <<-TEST
   castling can only happen if neither piece has moved
   ---
-  TODO moves here
+  1, 1,7,1 , 1, 1,6,3
+  1, 2,1,7 , 1, 2,1,5
+  1, 3,7,2 , 1, 3,7,3
+  1, 4,2,7 , 1, 4,2,5
+  1, 5,6,1 , 1, 5,7,2
+  1, 6,3,7 , 1, 6,3,5
+  1, 7,5,1 , 1, 7,6,1
+  1, 8,4,7 , 1, 8,4,5
+  1, 9,6,1 , 1, 9,5,1
+  1,10,5,7 , 1,10,5,5
+  1,11,5,1 , 1,11,7,1
   ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
+  select (select (
+    select count(*)
+    from piece_locations
+    where game = $game_id
+    and   piece_type = 'r'
+    and   piece_color = '-1'
+    and   x = 6
+  ) = 0)
 TEST
 
 
 test <<-TEST
   castling can only happen if there are not pieces between the two
   ---
-  TODO moves here
+  TODO moves here.  Attempt to castle queenside without moving the knight
   ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
+  select (select (
+    select count(*)
+    from piece_locations
+    where game = $game_id
+    and   piece_type = 'r'
+    and   piece_color = '-1'
+    and   x = 4
+  ) = 0)
 TEST
 
 
 test <<-TEST
   castling cannot happen in check
-  ---
-  TODO moves here
-  ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
-TEST
-
-
-test <<-TEST
-  when castling, the king moves 2 squares.  or vice versa
-  ---
-  TODO moves here
-  ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
-TEST
-
-
-test <<-TEST
-  when castling, the rook moves along with the king
   ---
   TODO moves here
   ---
