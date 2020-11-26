@@ -85,9 +85,39 @@ create materialized view initial_board as (
 );
 
 create view piece_movements as (
--- -- TODO: piece movement definitions
--- switch statement with movement mechanic defintions?  joins of some sort?  left join after left join?
--- dynamic and/or normalized movement defintions?  maybe this even simplifies some things.
+  with starting_positions as (
+    select x as start_x, y as start_y, m.n as start_w, n.n as start_z
+    from board
+    cross join natural_numbers m,
+    cross join natural_numbers n
+  ),
+  pawn as (
+    select *, (start_x + f), false as has_moved, false as attacking, 'p' as sym
+    from starting_positions
+    cross join (values (1), (-1)) as piece_color
+    cross join directions -- TODO?
+  ),
+  rook as (
+    -- TODO
+  ),
+  rook as (
+    -- TODO
+  ),
+  rook as (
+    -- TODO
+  ),
+  rook as (
+    -- TODO
+  ),
+  rook as (
+    -- TODO
+  ),
+  select * from pawn
+  union select * from rook
+  union select * from knight
+  union select * from bishop
+  union select * from queen
+  union select * from king
 );
 
 create sequence game_seq;
