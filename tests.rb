@@ -323,10 +323,17 @@ TEST
 test <<-TEST
   pawns can en-passant each other
   ---
-  TODO moves here
+  1,1,1,2 , 1,1,1,4
+  1,2,5,7 , 1,2,5,6
+  1,3,1,4 , 1,3,1,5
+  1,4,2,7 , 1,4,2,5
+  1,5,1,5 , 1,5,2,6
   ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
+  (select
+    (select count(*) from timelines where piece_color = -1)
+    =
+    (select count(*) from timelines where piece_color = 1)
+  )
 TEST
 
 
