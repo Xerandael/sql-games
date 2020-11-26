@@ -287,7 +287,7 @@ TEST
 
 
 test <<-TEST
-  one cannot move a piece such that one enters oneself into check
+  one cannot end ones turn in check
   ---
   TODO moves here
   ---
@@ -299,20 +299,21 @@ TEST
 test <<-TEST
   pawns move one square forward in the direction of their color
   ---
-  TODO moves here
+  1,1,1,2 , 1,1,1,3
+  1,2,2,7 , 1,2,2,6
   ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
+  (select (select count(*) from piece_moves where (end_y - start_y) = 1) = 2)
 TEST
 
 
 test <<-TEST
   pawns can move two squares on initial movement
   ---
-  TODO moves here
+  1,1,1,2 , 1,1,1,4
+  1,2,2,7 , 1,2,2,6
+  1,3,1,4 , 1,3,1,6
   ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
+  (select (select count(*) from piece_moves where (end_y - start_y) = 2) = 1)
 TEST
 
 
@@ -408,16 +409,6 @@ TEST
 
 test <<-TEST
   a board moved to cannot be moved from unless both actions happened in the same move or the movement from it happened first
-  ---
-  TODO moves here
-  ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
-TEST
-
-
-test <<-TEST
-  checkmate
   ---
   TODO moves here
   ---
