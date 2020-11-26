@@ -298,10 +298,15 @@ TEST
 test <<-TEST
   pawns must move diagonally to capture
   ---
-  TODO moves here
+  1,1,1,2 , 1,1,1,4
+  1,2,1,7 , 1,2,1,5
+  1,3,1,4 , 1,2,1,5
   ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
+  (select
+    (select count(*) from timelines where piece_color = -1)
+    =
+    (select count(*) from timelines where piece_color = 1)
+  )
 TEST
 
 
@@ -376,7 +381,15 @@ TEST
 test <<-TEST
   castling can only happen if there are not pieces between the two
   ---
-  TODO moves here.  Attempt to castle queenside without moving the knight
+  1,1,2,2 , 1,1,2,3
+  1,2,1,7 , 1,2,1,5
+  1,3,3,1 , 1,3,2,2
+  1,4,2,7 , 1,4,2,5
+  1,5,3,2 , 1,5,3,3
+  1,6,3,7 , 1,6,3,5
+  1,7,4,1 , 1,7,3,2
+  1,8,4,7 , 1,8,4,5
+  1,9,5,1 , 1,9,3,1
   ---
   select (select (
     select count(*)
