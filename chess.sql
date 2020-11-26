@@ -92,9 +92,19 @@ create view piece_movements as (
     cross join natural_numbers n
   ),
   pawn as (
-    select *, (start_x + f), false as has_moved, false as attacking, 'p' as sym
+    with directions as (
+      select *
+      from linear_movement_basis_vectors
+      -- TODO
+    )
+    select *,
+      (start_x + f),
+      n as steps_moved,
+      false as attacking,
+      'p' as sym
     from starting_positions
-    cross join (values (1), (-1)) as piece_color
+    cross join natural_numbers n -- TODO: use in arithmetic condition for moving 2 squares
+    cross join (values (1), (-1)) as piece_color -- TODO use in multiplication?
     cross join directions -- TODO?
   ),
   rook as (
@@ -186,6 +196,7 @@ create view timelines as (
 
 create view available_moves as (
   select null -- TODO
+  -- TODO: check for board edges, then check for pieces between the lines cast from the starting position.  Allow ending on an enemy but not an ally.
 );
 
 create view timelines as (
@@ -203,4 +214,4 @@ create view timelines as (
 -- that player can move 
 
 -- TODO: `piece_positions` view
--- TODO: `board_events` view?
+-- TODO: `board_events` view? `moved_to_by, moved_to_at`
