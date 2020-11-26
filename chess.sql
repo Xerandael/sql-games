@@ -95,7 +95,7 @@ create view piece_movements as (
     with directions as (
       select *
       from linear_movement_basis_vectors
-      -- TODO
+      -- TODO: outside of this view, filter on positivity or negativity of the y axis according to player color
     )
     select *,
       (start_x + f),

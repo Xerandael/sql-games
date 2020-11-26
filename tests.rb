@@ -5,6 +5,7 @@ def test(game_id=($game_id += 1),content)
   name,moves,assertion = content.split '---'
   if content.include? 'TODO'
     $output << "insert into test_cases(name,status) values ('#{name.gsub "'", "''"}', false);"
+    return
   end
   moves.split("\n")[1..-2].each{|a|
     $output << <<-SQL
@@ -150,22 +151,33 @@ TEST
 
 
 test <<-TEST
-  any given board cannot be moved from twice -- unless castling
+  castling
   ---
-  TODO moves here
+  1,1,7,1 , 1,1,6,3
+  1,2,1,7 , 1,2,1,5
+  1,3,7,2 , 1,3,7,3
+  1,4,2,7 , 1,4,2,5
+  1,5,6,1 , 1,5,7,2
+  1,6,3,7 , 1,6,3,5
+  1,7,5,1 , 1,7,7,1
   ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
+  select (select (
+    select count(*)
+    from piece_locations
+    where game = $game_id
+    and   piece_type = 'r'
+    and   piece_color = '-1'
+    and   x = 6
+  ) = 1)
 TEST
 
 
 test <<-TEST
   the move has to actually make sense for the given piece
   ---
-  TODO moves here
+  1,1,1,2 , 1,1,2,4
   ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
+  select (select (select count(*) from piece_locations where (game = $game_id) and (y = 4)) = 0)
 TEST
 
 
