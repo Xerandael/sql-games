@@ -225,10 +225,12 @@ TEST
 test <<-TEST
   the next player can only move after the previous has made moves on all boards in the present on active timelines
   ---
-  TODO moves here
+  1,1,7,1 , 1,1,6,3
+  1,3,6,3 , 1,1,6,5
+  2,2,7,8 , 2,2,6,6
+  2,3,6,5 , 1,3,6,7
   ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
+  TODO: only two moves actually made
 TEST
 
 
