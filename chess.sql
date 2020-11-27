@@ -183,22 +183,47 @@ create index ending_board_order on moves(game, to_timeline, to_turn, real_turn);
 
 create view state as (
   with recursive state as (
-    -- TODO: packing and unpacking all state into one common recursive view, e.g.:
-    -- select *, null as name, null as status
-    -- from blee
-    -- union all
-    -- select null as z, null as a, * from test_cases;
+    -- TODO: how get the initial board in here?
     with board_events as (
-      -- TODO
-    ),
-    available_moves as (
-      -- TODO:  join positions of moveable pieces against piece movements
-    ),
-    timelines as (
-      -- TODO:
+      -- TODO: I think the moving player has to be determined by the color of the piece being moved
+      with previous_state as (
+        -- TODO: unpack
+      ),
+      new_state as (
+        -- TODO: compute
+        -- TODO: `moved_to_by, moved_to_at`
+      )
+      select * from old_state union all select * from new_state
     ),
     piece_positions as (
-      -- TODO: unpack the old state, then union with the new state
+      with previous_state as (
+        -- TODO: unpack
+      ),
+      new_state as (
+        -- TODO: compute
+      )
+      select * from old_state union all select * from new_state
+    ),
+    available_moves as (
+      with previous_state as (
+        -- TODO: unpack
+      ),
+      new_state as (
+        -- TODO: compute
+        -- TODO:  join positions of moveable pieces against piece movements
+        -- TODO: check for board edges, then check for pieces between the lines cast from the starting position.  Allow ending on an enemy but not an ally.
+        -- join against the set of all pieces on whether they're linearly-between the start and end
+      )
+      select * from old_state union all select * from new_state
+    ),
+    timelines as (
+      with previous_state as (
+        -- TODO: unpack
+      ),
+      new_state as (
+        -- TODO: compute
+      )
+      select * from old_state union all select * from new_state
     ),
     pack as (
       select *
@@ -213,28 +238,3 @@ create view state as (
   select *
   from state
 );
-
-create view available_moves as (
-  select null -- TODO
-  -- TODO: check for board edges, then check for pieces between the lines cast from the starting position.  Allow ending on an enemy but not an ally.
-);
-
-create view timelines as (
-  select 1 game, 1 timeline, 1 turn -- TODO mock data
-);
--- -- TODO: filter invalid movements and all subsequent events per game
--- create view state as (
---   with recursive state -- TODO recursive, grouped self-join???
--- );
--- 
--- 
--- -- define betweenness as opposed to defining iteration of moves
--- -- join against the set of all pieces on whether they're linearly-between the start and end
--- TODO: I think the moving player has to be determined by the color of the piece being moved with only validation by determining whether
--- that player can move 
-
--- TODO: `piece_positions` view
--- TODO: `board_events` view? `moved_to_by, moved_to_at`
-
-
---------------------------------------------------------------------------------------------------------------------------------
