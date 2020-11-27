@@ -88,7 +88,7 @@ create view piece_movements as (
   with starting_positions as (
     select x as start_x, y as start_y, m.n as start_w, n.n as start_z
     from board
-    cross join natural_numbers m,
+    cross join natural_numbers m, -- TODO: should include negatives
     cross join natural_numbers n
   ),
   pawn as (
