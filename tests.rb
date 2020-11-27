@@ -146,7 +146,18 @@ test <<-TEST
   2,6,4,5 , 2,6,6,6
   4,5,6,5 , 2,7,6,5
   ---
-  select ((select count(*) from timelines where game = $game_id) = 18)
+  (
+    (select ((select count(*) from timelines where game = $game_id) = 18))
+    and
+    (select (
+      count (*)
+      from board_pieces
+      group by board
+      where game = $game_id
+      and piece_type = 'knight'
+      having count 3
+    ) = 1)
+  )
 TEST
 
 
@@ -212,7 +223,7 @@ TEST
 
 
 test <<-TEST
-  moves alternate between pieces of opposing color.  each player moves pieces on each board before the next player can move.
+  the next player can only move after the previous has made moves on all boards in the present on active timelines
   ---
   TODO moves here
   ---
@@ -296,7 +307,7 @@ TEST
 
 
 test <<-TEST
-  pawns must move diagonally to capture
+  pawns can only move diagonally when capturing
   ---
   1,1,1,2 , 1,1,1,4
   1,2,1,7 , 1,2,1,5
@@ -311,12 +322,19 @@ TEST
 
 
 test <<-TEST
-  pawns can only move diagonally when capturing
+  pawns move diagonally to capture
   ---
-  TODO moves here
+  1,1,1,2 , 1,1,1,4
+  1,2,2,7 , 1,2,2,6
+  1,3,1,4 , 1,3,1,5
+  1,4,5,7 , 1,4,5,5
+  1,5,1,5 , 1,5,2,6
   ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
+  (select
+    (select count(*) from timelines where piece_color = -1)
+    >
+    (select count(*) from timelines where piece_color = 1)
+  )
 TEST
 
 
@@ -331,7 +349,7 @@ test <<-TEST
   ---
   (select
     (select count(*) from timelines where piece_color = -1)
-    =
+    >
     (select count(*) from timelines where piece_color = 1)
   )
 TEST
@@ -432,10 +450,21 @@ TEST
 test <<-TEST
   a board moved to cannot be moved from unless both actions happened in the same move or the movement from it happened first
   ---
-  TODO moves here
+  1,1,7,1 , 1,1,6,3
+  1,2,7,8 , 1,2,6,6
+  1,3,6,3 , 1,1,6,5
+  2,2,7,8 , 2,2,6,6
+  2,3,6,5 , 1,3,6,7
+  1,4,7,8 , 1,4,6,6
+  2,4,6,6 , 2,4,4,5
+  1,5,2,1 , 1,5,1,3
+  2,5,2,1 , 2,3,2,3
+  4,4,6,6 , 4,4,4,5
+  1,6,7,8 , 1,6,6,6
+  2,6,4,5 , 2,6,6,6
+  4,5,6,5 , 2,7,6,5
   ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
+  select ((select count(*) from timelines where game = $game_id) = 18)
 TEST
 
 
