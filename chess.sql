@@ -180,7 +180,6 @@ create index real_turns on moves(game,real_turn);
 create index ending_board_order on moves(game, to_timeline, to_turn, real_turn);
 
 --------------------------------------------------------------------------------------------------------------------------------
--- TODO: this section is all drafts
 
 create view state as (
   with recursive state as (
@@ -191,21 +190,28 @@ create view state as (
     -- select null as z, null as a, * from test_cases;
     with board_events as (
       -- TODO
-    ), available_moves as (
+    ),
+    available_moves as (
       -- TODO:  join positions of moveable pieces against piece movements
     ),
     timelines as (
       -- TODO:
     ),
     piece_positions as (
-      -- TODO
+      -- TODO: unpack the old state, then union with the new state
+    ),
+    pack as (
+      select *
+      from board_events
+      full join available_moves on 0 = 1
+      full join timelines       on 0 = 1
+      full join piece_positions on 0 = 1
     )
     select *
-    from timelines t
-    join available_moves a on ((a.from_timeline = t.timeline) and (a.from_turn = t.turn))
+    from pack
   )
   select *
-  from timelines
+  from state
 );
 
 create view available_moves as (

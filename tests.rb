@@ -266,30 +266,24 @@ TEST
 
 
 test <<-TEST
-  if one is in check, one cannot move a piece except to leave check
-  ---
-  TODO moves here
-  ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
-TEST
-
-
-test <<-TEST
   one cannot end ones turn in check
   ---
-  TODO moves here
+  1,1,4,2 , 1,1,4,3
+  1,2,3,7 , 1,2,3,6
+  1,3,1,2 , 1,3,1,3
+  1,4,4,8 , 1,4,1,5
+  1,5,1,3 , 1,5,1,4
   ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
+  (select (select count(*) from boards where game = $game_id) = 5)
 TEST
 
 
 test <<-TEST
   pawns move one square forward in the direction of their color
   ---
-  1,1,1,2 , 1,1,1,3
+  1,1,1,2 , 1,1,1,4
   1,2,2,7 , 1,2,2,6
+  1,3,1,2 , 1,3,1,3
   ---
   (select (select count(*) from piece_moves where (end_y - start_y) = 1) = 2)
 TEST
