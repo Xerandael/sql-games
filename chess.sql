@@ -85,7 +85,6 @@ create materialized view initial_board as (
   join board on squares.square_num = board.n
 );
 
-
 create view piece_movements as (
   with starting_positions as (
     select x as start_x, y as start_y, m.n as start_w, n.n as start_z
@@ -171,6 +170,9 @@ create unique index  order                                       on moves(game, 
 create        index  ordered_list_of_moves_onto_any_given_board  on moves(game, to_timeline, to_turn, order);
 
 -- TODO: move to `computation.sql`
+\i definitions.sql
+\i events.sql
+
 create view state as ( with recursive state as (
   -- TODO: how get the initial board in here?
   with board_events as (
