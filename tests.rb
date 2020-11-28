@@ -230,7 +230,7 @@ test <<-TEST
   2,2,7,8 , 2,2,6,6
   2,3,6,5 , 1,3,6,7
   ---
-  TODO: only two moves actually made
+  (select (select count(*) from board_events where game = $game_id) = 2)
 TEST
 
 
@@ -420,26 +420,6 @@ test <<-TEST
     and   piece_color = '-1'
     and   x = 4
   ) = 0)
-TEST
-
-
-test <<-TEST
-  castling cannot happen in check
-  ---
-  TODO moves here
-  ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
-TEST
-
-
-test <<-TEST
-  pawn promotion
-  ---
-  TODO moves here
-  ---
-  TODO assertion here
-  ((select count(*) from moves where (from_timeline,from_turn,from_x,from_y,to_timeline,to_turn,to_x,to_y) = (1,1,1,1,2,1,1,1)) = 1) and
 TEST
 
 
