@@ -1,12 +1,14 @@
 \i board.sql
 
-create view definitions.piece_movements as (
-  with starting_positions as (
+create view definitions.piece_movements as ( with
+
+  starting_positions as (
     select x as start_x, y as start_y, m.n as start_w, n.n as start_z
     from board
     cross join natural_numbers m, -- TODO: should include negatives
     cross join natural_numbers n
   ),
+
   pawn as (
     with directions as (
       select *
@@ -15,8 +17,7 @@ create view definitions.piece_movements as (
     )
     select *,
       (start_x + f),
-      n as steps_moved,
-      false as attacking,
+      n as order,
       'p' as sym
     from starting_positions
     cross join
@@ -27,21 +28,27 @@ create view definitions.piece_movements as (
       and (((end_x - start_x) in (-1, 0, 1)) or ((end_w - start_w) in (-1, 0, 1)))
       and (() * ()) -- TODO
   ),
+
   rook as (
     -- TODO
   ),
-  rook as (
+
+  knight as (
     -- TODO
   ),
-  rook as (
+
+  bishop as (
     -- TODO
   ),
-  rook as (
+
+  queen as (
     -- TODO
   ),
-  rook as (
+
+  king as (
     -- TODO
   ),
+
   select * from pawn
   union select * from rook
   union select * from knight
