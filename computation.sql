@@ -5,7 +5,6 @@
 create schema computation;
 
 create view computation.state as ( with recursive state as ( with
-
   board_events as (
     -- TODO: I think the moving player has to be determined by the color of the piece being moved
     with previous_state as (

@@ -1,7 +1,8 @@
 \i board.sql
 
-create view definitions.piece_movements as ( with
+create schema pieces;
 
+create view pieces.movements as ( with
   starting_positions as (
     select x as start_x, y as start_y, m.n as start_w, n.n as start_z
     from board
@@ -18,7 +19,7 @@ create view definitions.piece_movements as ( with
     select *,
       (start_x + f),
       n as order,
-      'p' as sym
+      'p' as type
     from starting_positions
     cross join
       (values (1), (-1)) as piece_color
